@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Comment & Suggestion Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    /* Navigation bar */
+    .navbar {
+      display: flex;
+      background: #333;
+      color: white;
+      padding: 10px;
+    }
+    .navbar a {
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+    }
+    .navbar a:hover {
+      background: #555;
+    }
+    /* Content */
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f1f1f1;
+      border-radius: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <a href="#" onclick="selectName('Alice')">Alice</a>
+    <a href="#" onclick="selectName('Bob')">Bob</a>
+    <a href="#" onclick="selectName('Charlie')">Charlie</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h2>Comment & Suggestion Generator</h2>
+    <p id="selectedName">No name selected yet.</p>
+    <button onclick="showResult()">Show Comment & Suggestion</button>
+    <div class="result" id="resultBox"></div>
+  </div>
+
+  <script>
+    let chosenName = "";
+
+    function selectName(name) {
+      chosenName = name;
+      document.getElementById("selectedName").textContent = "Selected: " + name;
+      document.getElementById("resultBox").style.display = "none";
+    }
+
+    function showResult() {
+      if (!chosenName) {
+        alert("Please select a name first!");
+        return;
+      }
+      let comment = "";
+      let suggestion = "";
+
+      if (chosenName === "Alice") {
+        comment = "Alice is hardworking and focused.";
+        suggestion = "Keep improving your time management.";
+      } else if (chosenName === "Bob") {
+        comment = "Bob is very creative and friendly.";
+        suggestion = "Try to participate more in group discussions.";
+      } else if (chosenName === "Charlie") {
+        comment = "Charlie shows great leadership.";
+        suggestion = "Work on listening to others more carefully.";
+      }
+
+      document.getElementById("resultBox").style.display = "block";
+      document.getElementById("resultBox").innerHTML = 
+        `<strong>Comment:</strong> ${comment}<br><strong>Suggestion:</strong> ${suggestion}`;
+    }
+  </script>
+</body>
+</html>
