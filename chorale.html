@@ -2,107 +2,244 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Comment & Suggestion Website</title>
+  <title>MCGI TCC CHORALE</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background: #f9f9f9;
-    }
-    /* Navigation bar */
-    .navbar {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #1d2671, #c33764);
+      min-height: 100vh;
       display: flex;
-      background: #333;
-      color: white;
-      padding: 10px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      color: #fff;
     }
-    .navbar a {
-      color: white;
-      padding: 10px 20px;
-      text-decoration: none;
-    }
-    .navbar a:hover {
-      background: #555;
-    }
-    /* Content */
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      background: white;
+
+    header {
+      width: 100%;
+      text-align: center;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: rgba(0,0,0,0.4);
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
-    button {
-      display: block;
+
+    .container {
+      width: 95%;
+      max-width: 600px;
       margin: 20px auto;
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
+      padding: 25px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+
+    input, button, textarea {
+      width: 96%;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
       border: none;
-      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    input, textarea {
+      background: rgba(255,255,255,0.8);
+      color: #000;
+    }
+
+    button {
+      background: linear-gradient(135deg, #ff512f, #dd2476);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.5);
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+
+    .hidden { display: none; }
+
+    ul { list-style: none; padding: 0; }
+    ul li {
+      padding: 10px;
+      margin: 5px 0;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
       cursor: pointer;
     }
-    button:hover {
-      background: #0056b3;
+
+    /* floating notes */
+    .note {
+      position: fixed;
+      font-size: 24px;
+      opacity: 0.7;
+      animation: floatNotes 8s linear infinite;
     }
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f1f1f1;
-      border-radius: 5px;
-      display: none;
+    @keyframes floatNotes {
+      from { transform: translateY(100vh) rotate(0deg); opacity: 0.7; }
+      to { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <div class="navbar">
-    <a href="#" onclick="selectName('Alice')">Alice</a>
-    <a href="#" onclick="selectName('Bob')">Bob</a>
-    <a href="#" onclick="selectName('Charlie')">Charlie</a>
+  <header>🎶 Chorale Comment System 🎶</header>
+
+  <!-- Login -->
+  <div class="container" id="loginPage">
+    <h2>Login</h2>
+    <input type="text" id="loginUser" placeholder="Username">
+    <input type="password" id="loginPass" placeholder="Password">
+    <button onclick="login()">Login</button>
   </div>
 
-  <!-- Main Content -->
-  <div class="container">
-    <h2>Comment & Suggestion Generator</h2>
-    <p id="selectedName">No name selected yet.</p>
-    <button onclick="showResult()">Show Comment & Suggestion</button>
-    <div class="result" id="resultBox"></div>
+  <!-- Dashboard -->
+  <div class="container hidden" id="dashboardPage">
+    <h2>Welcome, <span id="welcomeName"></span></h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <h3>Select Group</h3>
+    <button onclick="showGroup('Youth')">🎤 Youth Chorale</button>
+    <button onclick="showGroup('Locale')">🎶 Locale Chorale</button>
+  </div>
+
+  <!-- Group Page -->
+  <div class="container hidden" id="groupPage">
+    <h2 id="groupTitle"></h2>
+    <ul id="nameList"></ul>
+
+    <!-- Comment Section (hidden until name clicked) -->
+    <div id="commentSection" class="hidden">
+      <h3>Comment & Suggestion</h3>
+      <p id="commentBox"></p>
+      <div id="adminTools" class="hidden">
+        <textarea id="editComment" placeholder="Edit comment..."></textarea>
+        <button onclick="saveComment()">Save Comment</button>
+      </div>
+    </div>
+    <button onclick="goBack()">Back</button>
   </div>
 
   <script>
-    let chosenName = "";
+    /* floating notes */
+    function createNotes() {
+      const notes = ["🎵","🎶","🎼","🎤"];
+      setInterval(() => {
+        let note = document.createElement("div");
+        note.className = "note";
+        note.innerText = notes[Math.floor(Math.random()*notes.length)];
+        note.style.left = Math.random()*100 + "vw";
+        note.style.animationDuration = (5+Math.random()*5) + "s";
+        document.body.appendChild(note);
+        setTimeout(() => note.remove(), 8000);
+      }, 1500);
+    }
+    createNotes();
 
-    function selectName(name) {
-      chosenName = name;
-      document.getElementById("selectedName").textContent = "Selected: " + name;
-      document.getElementById("resultBox").style.display = "none";
+    /* Accounts */
+    const accounts = [
+      {user:"elisha345", pass:"prov2568", name:"Sis Elisha Perez Abad", group:"Youth"},
+      {user:"jeulle233", pass:"youth7654", name:"Sis Jeulle Ocampo", group:"Youth"},
+      {user:"angela443", pass:"youth4859", name:"Sis Maria Angela Megallin", group:"Youth"},
+      {user:"khaizen264", pass:"youth3456", name:"Sis Khaizen Nicole Briones", group:"Youth"},
+      {user:"eli367", pass:"youth8567", name:"Sis Eli Gelbolingo", group:"Youth"},
+      {user:"paulo290", pass:"prov2900", name:"Bro Paulo Mateo", group:"Youth"},
+
+      {user:"jeedhan457", pass:"lcc789", name:"Sis Jeedhan De Jesus", group:"Locale"},
+      {user:"nimfa981", pass:"locale2890", name:"Sis Nimfa Dupagan", group:"Locale"},
+      {user:"mayrose682", pass:"locale6901", name:"Sis Mayrose Agustin", group:"Locale"},
+      {user:"raycy339", pass:"locale1012", name:"Sis Raycy Obstaculo Bermio", group:"Locale"},
+      {user:"reynalyn091", pass:"locale1111", name:"Sis Reynalyn Nepomoceno", group:"Locale"},
+      {user:"monaliza231", pass:"locale2222", name:"Sis Monaliza Rosario", group:"Locale"},
+      {user:"gemma683", pass:"locale6333", name:"Sis Gemma Gorabao", group:"Locale"},
+      {user:"erica440", pass:"locale5444", name:"Sis Erica Sabat", group:"Locale"},
+      {user:"shiela567", pass:"locale8555", name:"Sis Shielamae Bolalin", group:"Locale"},
+      {user:"renato119", pass:"locale8766", name:"Bro Renato Navarro", group:"Locale"},
+      {user:"rommel047", pass:"locale2777", name:"Bro Rommel Ortiz", group:"Locale"}
+    ];
+
+    let currentUser=null,currentGroup=null,currentSelected=null;
+
+    function login(){
+      let user=document.getElementById("loginUser").value.trim().toLowerCase();
+      let pass=document.getElementById("loginPass").value;
+      if(user==="admin"&&pass==="mcgi290"){
+        currentUser={name:"Admin",user:"admin",admin:true};
+      } else {
+        currentUser=accounts.find(a=>a.user===user&&a.pass===pass);
+      }
+      if(!currentUser){alert("Invalid login!");return;}
+      document.getElementById("welcomeName").textContent=currentUser.name;
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("dashboardPage").classList.remove("hidden");
     }
 
-    function showResult() {
-      if (!chosenName) {
-        alert("Please select a name first!");
-        return;
-      }
-      let comment = "";
-      let suggestion = "";
+    function logout(){
+      currentUser=null;
+      document.getElementById("dashboardPage").classList.add("hidden");
+      document.getElementById("groupPage").classList.add("hidden");
+      document.getElementById("loginPage").classList.remove("hidden");
+      document.getElementById("commentSection").classList.add("hidden");
+    }
 
-      if (chosenName === "Alice") {
-        comment = "Alice is hardworking and focused.";
-        suggestion = "Keep improving your time management.";
-      } else if (chosenName === "Bob") {
-        comment = "Bob is very creative and friendly.";
-        suggestion = "Try to participate more in group discussions.";
-      } else if (chosenName === "Charlie") {
-        comment = "Charlie shows great leadership.";
-        suggestion = "Work on listening to others more carefully.";
-      }
+    function showGroup(type){
+      currentGroup=type;
+      document.getElementById("dashboardPage").classList.add("hidden");
+      document.getElementById("groupPage").classList.remove("hidden");
+      document.getElementById("groupTitle").textContent=type+" Chorale";
+      let list=document.getElementById("nameList");list.innerHTML="";
+      accounts.filter(a=>a.group===type).forEach(n=>{
+        let li=document.createElement("li");
+        li.textContent=n.name;
+        li.onclick=()=>selectName(n.name);
+        list.appendChild(li);
+      });
+      // keep comment hidden until a name is clicked
+      document.getElementById("commentSection").classList.add("hidden");
+    }
 
-      document.getElementById("resultBox").style.display = "block";
-      document.getElementById("resultBox").innerHTML = 
-        `<strong>Comment:</strong> ${comment}<br><strong>Suggestion:</strong> ${suggestion}`;
+    function selectName(name){
+      if(!currentUser)return;
+      let allowed=currentUser.admin || currentUser.name.toLowerCase()===name.toLowerCase();
+      document.getElementById("commentSection").classList.remove("hidden");
+      if(!allowed){
+        document.getElementById("commentBox").textContent="🚫 Access Denied";
+        document.getElementById("adminTools").classList.add("hidden");
+      } else {
+        let saved=localStorage.getItem("comment_"+name)||"No comment yet.";
+        document.getElementById("commentBox").textContent=saved;
+        if(currentUser.admin){
+          document.getElementById("adminTools").classList.remove("hidden");
+          document.getElementById("editComment").value=saved;
+          currentSelected=name;
+        } else {
+          document.getElementById("adminTools").classList.add("hidden");
+        }
+      }
+    }
+
+    function saveComment(){
+      if(!currentSelected)return;
+      let newC=document.getElementById("editComment").value;
+      localStorage.setItem("comment_"+currentSelected,newC);
+      document.getElementById("commentBox").textContent=newC;
+    }
+
+    function goBack(){
+      document.getElementById("groupPage").classList.add("hidden");
+      document.getElementById("dashboardPage").classList.remove("hidden");
     }
   </script>
 </body>
